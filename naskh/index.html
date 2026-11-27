@@ -66,6 +66,9 @@ input[type=range]{accent-color:var(--accent)}
 .well{background:var(--well);border-radius:12px;padding:clamp(12px,3vw,36px);display:grid;place-items:center;min-width:0}
 canvas{display:block;width:100%;height:auto;max-width:100%;box-shadow:0 1px 2px rgba(0,0,0,.25),0 14px 34px rgba(0,0,0,.22);border-radius:2px}
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.well.zoom{display:block;overflow:auto;max-height:82vh}
+.well.zoom canvas{max-width:none}
 .note{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px}
 .note h3{margin:0;font-family:var(--display);font-size:1.25rem;color:var(--gold)}
 .note p{margin:0;color:var(--fg);max-width:70ch}
@@ -78,6 +81,7 @@ details p{margin:.4em 0 0;max-width:72ch}
 @media (prefers-reduced-motion:no-preference){.school,.seg button,.btn{transition:background .15s,border-color .15s}}
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="reedEdge" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.38" numOctaves="2" seed="4" result="n"/><feDisplacementMap id="reedDisp" in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <div class="wrap">
   <header>
     <h1>ديوان <span>النسخ</span></h1>
@@ -145,6 +149,7 @@ details p{margin:.4em 0 0;max-width:72ch}
         <label class="f">حجم القلم <input type="range" id="size" min="40" max="140" step="2"></label>
         <label class="f">التطويل (الكشيدة) <input type="range" id="kashida" min="0" max="1" step="0.05"></label>
         <label class="f">ما بين الأسطر <input type="range" id="lh" min="1.5" max="2.6" step="0.05"></label>
+        <label class="f">أثر القصبة والمداد <input type="range" id="reed" min="0" max="1" step="0.05"></label>
         <label class="check"><input type="checkbox" id="dots"> مسطرة النقاط</label>
       </div>
 
@@ -157,10 +162,11 @@ details p{margin:.4em 0 0;max-width:72ch}
     </aside>
 
     <section class="stagecol" aria-label="اللوحة">
-      <div class="well"><canvas id="stage" role="img" aria-label="معاينة الخط"></canvas></div>
+      <div class="well" id="well"><canvas id="stage" role="img" aria-label="معاينة الخط"></canvas></div>
       <div class="bar">
         <div class="status" id="status" aria-live="polite"></div>
-        <button class="btn ghost" type="button" id="saveBtn" hidden>حفظ اللوحة صورة</button>
+        <div class="actions"><button class="btn ghost" type="button" id="zoomBtn" aria-pressed="false">تكبير لرؤية أثر القصبة</button>
+        <button class="btn ghost" type="button" id="saveBtn" hidden>حفظ اللوحة صورة</button></div>
       </div>
       <div class="note">
         <h3 id="nName"></h3>
@@ -170,6 +176,7 @@ details p{margin:.4em 0 0;max-width:72ch}
       <details>
         <summary>كيف يعمل هذا؟</summary>
         <p>الحروف تُرسم بخطوط نسخ مفتوحة صُمّمت على أصول النسخ التراثي (أميري مأخوذ عن نسخ مطبعة بولاق، وشهرزاد ونوتو على النسخ التقليدي). أمّا «نمط الأستاذ» فيتحكّم في طريقة التركيب: مواضع التطويل وعدده، وتوزيع المسافات، وكثافة الأسطر، والمداد والورق والإطار. والذكاء الاصطناعي يتولّى التشكيل وتقسيم الأسطر.</p>
+        <p>«أثر القصبة» يحاكي الكتابة بالقلم والمداد: يُجرّ شكل الحرف على حدّ قطّة مائلة فيظهر التغليظ والترقيق، وتميل الكلمات وتتموّج قليلًا كما تفعل اليد، ويُغمس القلم كل بضع كلمات فيكون المداد بعد الغمس مشبعًا ثم يخفّ وتظهر فيه آثار ألياف القصبة، ويتجمّع المداد على حواف الحروف ويتشرّب قليلًا في الورق.</p>
         <p>هذه محاكاة لأسلوب التركيب، وليست يد الخطاط نفسها. توليد الحروف بيد حافظ عثمان أو شوقي حقًّا يحتاج نموذجًا يُدرَّب على مجموعة كبيرة من مَشقهم وكراريسهم.</p>
       </details>
     </section>
@@ -217,7 +224,7 @@ const SCHOOLS=[
   ai:"مطبعة بولاق: نسخ طباعي للكتب، أسطر كثيفة مضبوطة، تطويل قليل، تشكيل عند اللبس فقط إلا إن طُلب التام."}
 ];
 
-const INKS={smoke:"#1B1714",sepia:"#3E2A18",lapis:"#1D3A6E",crimson:"#7A1F1F",gold:"gold"};
+const INKS={smoke:"#17110D",sepia:"#3E2A18",lapis:"#1D3A6E",crimson:"#7A1F1F",gold:"gold"};
 const PAPERS={
   ahar:{bg:"#EFE2C4",edge:"#D8C499",margin:"#D9C8A0"},
   nohudi:{bg:"#E5CFA0",edge:"#C9AE77",margin:"#C9B07C"},
@@ -228,7 +235,7 @@ const PAPERS={
 /* ---------- State ---------- */
 const DEFAULT_TEXT="رَبِّ يَسِّرْ وَلَا تُعَسِّرْ\nرَبِّ تَمِّمْ بِالْخَيْرِ";
 const st={text:DEFAULT_TEXT,school:"shevki",layout:"piece",font:"Amiri|400",tashkeel:"keep",ink:"smoke",paper:"ahar",
-  size:88,kashida:.5,lh:1.95,dots:true,ai:null};
+  size:88,kashida:.5,lh:1.95,dots:true,reed:.75,ai:null};
 try{const t=localStorage.getItem("naskh.text");if(t)st.text=t;}catch(e){}
 
 /* ---------- Arabic text helpers ---------- */
@@ -337,7 +344,81 @@ function dotScale(ctx,x,yBase,fs,color,dark){
   ctx.textAlign="center";ctx.direction="rtl";ctx.fillText("الألف ٥ نقاط",x,yBase+fs*.32);ctx.restore();
 }
 
+/* ---------- Reed pen & ink ----------
+   1) the glyph is stamped along the nib edge (Minkowski sum with a short segment at ~40°),
+      which gives the thick/thin contrast of a cut qalam;
+   2) words get a slight rotation and baseline drift, as a hand does;
+   3) the pen is dipped every few words: ink is full after a dip and thins out, with dry fibre streaks;
+   4) ink pools at the edges (inner rim), mottles inside, bleeds slightly into the paper, and the edge is roughened. */
+const S=2;
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+const canFilter=(()=>{try{const t=document.createElement("canvas").getContext("2d");return typeof t.filter==="string";}catch(e){return false;}})();
+function drawInk(ctx,placed,o){
+  const {Wf,H,fs,reed,R}=o;
+  const mk=()=>{const c=document.createElement("canvas");c.width=Wf*S;c.height=H*S;return c;};
+  const c=mk(),g=c.getContext("2d");
+  g.setTransform(S,0,0,S,0,0);
+  g.font=o.fontStr;g.direction="rtl";g.textAlign="right";g.textBaseline="alphabetic";
+  const a=40*Math.PI/180,vx=Math.cos(a),vy=-Math.sin(a);
+  const len=fs*.04*reed,steps=Math.max(1,Math.ceil(len*S/.7));
+  let level=1;
+  placed.forEach(p=>{
+    p.rot=(R()-.5)*.014*reed;p.dy=(R()-.5)*fs*.025*reed;
+    p.dry=1-level;level-=.2+R()*.15;if(level<.2)level=1;   // dip again
+  });
+  // 1) shape
+  g.fillStyle="#000";
+  placed.forEach(p=>{g.save();g.translate(p.x,p.y+p.dy);g.rotate(p.rot);
+    for(let k=0;k<=steps;k++){const t=(steps?k/steps-.5:0)*len;g.fillText(p.w,vx*t,vy*t);}g.restore();});
+  const mask=mk();mask.getContext("2d").drawImage(c,0,0);
+  // 2) colour
+  g.globalCompositeOperation="source-in";
+  g.fillStyle=o.gold?goldGrad(g,0,o.inner,0,H-o.inner):o.inkColor;g.fillRect(0,0,Wf,H);
+  if(reed>0){
+    // 3) mottling inside the strokes
+    g.globalCompositeOperation="destination-out";
+    const n=Math.round(Wf*H/420*reed);
+    for(let i=0;i<n;i++){g.fillStyle=`rgba(0,0,0,${R()*.16*reed})`;
+      g.beginPath();g.arc(R()*Wf,R()*H,fs*(.03+R()*.14),0,Math.PI*2);g.fill();}
+    // 4) ink pooled at the edges: blurred inverse mask, kept only inside the ink
+    if(canFilter){
+      const e=mk(),eg=e.getContext("2d");
+      eg.fillStyle=o.dark?"#FFF7E0":(o.gold?"#5A3C0E":"#000");eg.fillRect(0,0,e.width,e.height);
+      eg.globalCompositeOperation="destination-out";eg.drawImage(mask,0,0);
+      g.save();g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation="source-atop";
+      g.globalAlpha=Math.min(1,.95*reed);g.filter=`blur(${Math.max(1.5,fs*.03*S)}px)`;g.drawImage(e,0,0);g.restore();
+    }
+    // 5) the pen running dry: lighter ink and fibre streaks along the stroke
+    g.globalCompositeOperation="destination-out";g.lineCap="round";
+    placed.forEach(p=>{
+      if(p.dry<=.05)return;
+      const x0=p.x-p.ww,top=p.y+p.dy-fs*.95,h=fs*1.35;
+      g.fillStyle=`rgba(0,0,0,${p.dry*.34*reed})`;g.fillRect(x0,top,p.ww,h);
+      const k=Math.round(p.ww*h/(fs*fs)*70*p.dry*reed);
+      for(let i=0;i<k;i++){
+        const x=x0+R()*p.ww,y=top+R()*h,l=fs*(.1+R()*.45),ang=(R()-.5)*.2;
+        g.strokeStyle=`rgba(0,0,0,${(.25+R()*.55)*p.dry})`;g.lineWidth=.5+R()*1.3;
+        g.beginPath();g.moveTo(x,y);g.lineTo(x-Math.cos(ang)*l,y+Math.sin(ang)*l);g.stroke();
+      }
+    });
+  }
+  // 6) onto the paper: a faint bleed, then the ink itself with a roughened edge
+  const filt=document.getElementById("reedDisp");
+  if(filt)filt.setAttribute("scale",String(3*S*reed));
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);
+  if(canFilter&&reed>0){
+    ctx.globalAlpha=.3*reed;ctx.filter=`blur(${1.6*S}px)`;ctx.drawImage(c,0,0);
+    ctx.globalAlpha=1;ctx.filter="url(#reedEdge)";
+  }
+  ctx.globalCompositeOperation=(o.dark||o.gold)?"source-over":"multiply";
+  ctx.drawImage(c,0,0);
+  ctx.restore();
+}
+
 const canvas=$("#stage"),ctx=canvas.getContext("2d");
+let zoomed=false;
+function applyZoom(){canvas.style.width=zoomed?Math.round(canvas.width/S*1.6)+"px":"";$("#well").classList.toggle("zoom",zoomed);
+  $("#zoomBtn").setAttribute("aria-pressed",String(zoomed));$("#zoomBtn").textContent=zoomed?"عرض اللوحة كاملة":"تكبير لرؤية أثر القصبة";}
 let renderToken=0;
 async function render(){
   const tok=++renderToken;
@@ -370,19 +451,22 @@ async function render(){
   const textW=Math.max(...composed.map(c=>c.width));
   const Wf=layout==="line"?Math.min(W,Math.max(900,textW+2*inner+dotsW)):W;
   const H=Math.round(inner*2+lh*lines.length+fs*.1);
-  canvas.width=Wf;canvas.height=H;
+  canvas.width=Wf*S;canvas.height=H*S;
+  ctx.setTransform(S,0,0,S,0,0);
   ctx.direction="rtl";
   frame(ctx,Wf,H,layout,p,m);
-  ctx.font=fontStr;ctx.textBaseline="alphabetic";ctx.textAlign="right";
+  ctx.font=fontStr;ctx.textBaseline="alphabetic";ctx.textAlign="right";ctx.direction="rtl";
   const ink=INKS[st.ink];
   const inkColor=p.dark&&st.ink==="smoke"?"#EFE6CF":ink;
-  ctx.fillStyle=ink==="gold"?goldGrad(ctx,0,inner,0,H-inner):inkColor;
   const centerX=st.dots?(Wf-dotsW)/2:Wf/2;
+  const placed=[];
   composed.forEach((c,i)=>{
     const y=inner+lh*i+lh*.64;
     let x=centerX+c.width/2;
-    c.words.forEach(w=>{ctx.fillText(w,x,y);x-=ctx.measureText(w).width+c.gap;});
+    c.words.forEach(w=>{const ww=ctx.measureText(w).width;placed.push({w,x,y,ww});x-=ww+c.gap;});
   });
+  drawInk(ctx,placed,{Wf,H,fontStr,fs,inner,inkColor,gold:ink==="gold",dark:!!p.dark,reed:st.reed,R:rng(hashStr(src)+fs)});
+  applyZoom();
   if(st.dots){dotScale(ctx,Wf-inner-dotsW*.35,inner+lh*.64,fs,ink==="gold"?"#B98B33":inkColor,p.dark);}
   canvas.setAttribute("aria-label",`${src.replace(/\n/g," ")} — على نمط ${school.name}`);
 }
@@ -401,7 +485,7 @@ function syncControls(){
   document.querySelectorAll(".school").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.id===st.school)));
   document.querySelectorAll("#layout button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===st.layout)));
   $("#font").value=st.font;$("#tashkeel").value=st.tashkeel;$("#ink").value=st.ink;$("#paper").value=st.paper;
-  $("#size").value=st.size;$("#kashida").value=st.kashida;$("#lh").value=st.lh;$("#dots").checked=st.dots;
+  $("#size").value=st.size;$("#kashida").value=st.kashida;$("#lh").value=st.lh;$("#dots").checked=st.dots;$("#reed").value=st.reed;
   const s=SCHOOLS.find(x=>x.id===st.school);
   $("#nName").textContent=`${s.name} · ${s.dates}`;$("#nDesc").textContent=s.desc;
   const n=$("#nAi");if(st.ai&&st.ai.for===st.text&&st.ai.note){n.textContent=st.ai.note;n.hidden=false;}else n.hidden=true;
@@ -415,7 +499,8 @@ $("#txt").addEventListener("input",e=>{st.text=e.target.value;try{localStorage.s
 document.querySelectorAll("#layout button").forEach(b=>b.addEventListener("click",()=>{st.layout=b.dataset.v;
   if(st.layout==="page"&&st.size>72)st.size=60;if(st.layout!=="page"&&st.size<70)st.size=84;syncControls();render();}));
 [["font","font"],["tashkeel","tashkeel"],["ink","ink"],["paper","paper"]].forEach(([id,k])=>$("#"+id).addEventListener("change",e=>{st[k]=e.target.value;render();}));
-[["size","size"],["kashida","kashida"],["lh","lh"]].forEach(([id,k])=>$("#"+id).addEventListener("input",e=>{st[k]=parseFloat(e.target.value);render();}));
+[["size","size"],["kashida","kashida"],["lh","lh"],["reed","reed"]].forEach(([id,k])=>$("#"+id).addEventListener("input",e=>{st[k]=parseFloat(e.target.value);render();}));
+$("#zoomBtn").addEventListener("click",()=>{zoomed=!zoomed;applyZoom();});
 $("#dots").addEventListener("change",e=>{st.dots=e.target.checked;render();});
 
 function setStatus(t,err){const s=$("#status");s.textContent=t;s.classList.toggle("err",!!err);}
