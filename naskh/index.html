@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>ديوان النسخ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Lateef:wght@400;700&family=Markazi+Text:wght@400;600&family=Mirza:wght@400;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* Layout: a calligrapher's bench — the tools (schools + pens) on the start side, the sheet of ahar paper on a dark well beside them. */
+:root{
+  --bg:#E9EEEA; --surface:#F7F9F6; --well:#D5DED8; --fg:#1C2826; --muted:#5A6B67;
+  --line:#C3CFC9; --accent:#1F5C57; --accent-fg:#F4F7F5; --gold:#9A6B1F;
+  --display:"Amiri","Scheherazade New",serif;
+  --ui:"IBM Plex Sans Arabic","Noto Naskh Arabic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1817; --surface:#162221; --well:#0A1110; --fg:#E7E3D7; --muted:#9AA9A4;
+  --line:#2A3B39; --accent:#5FB3A9; --accent-fg:#0B1514; --gold:#D6AA52; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1817; --surface:#162221; --well:#0A1110; --fg:#E7E3D7; --muted:#9AA9A4;
+  --line:#2A3B39; --accent:#5FB3A9; --accent-fg:#0B1514; --gold:#D6AA52; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1320px;margin:0 auto;display:grid;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--display);font-weight:700;font-size:2.4rem;margin:0;line-height:1.2;color:var(--fg)}
+h1 span{color:var(--gold)}
+header p{margin:0;color:var(--muted);max-width:62ch}
+.studio{display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.studio{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:16px;min-width:0}
+.panel h2{font-size:.8rem;letter-spacing:.04em;color:var(--muted);margin:0 0 6px;font-weight:600}
+textarea{width:100%;min-height:96px;resize:vertical;font-family:"Amiri",serif;font-size:1.35rem;line-height:1.8;
+  background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea:focus-visible,select:focus-visible,input:focus-visible,button:focus-visible,.school:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.schools{display:grid;gap:6px;max-height:340px;overflow:auto;padding-inline-end:4px}
+.school{display:grid;grid-template-columns:1fr auto;gap:0 8px;text-align:right;background:transparent;border:1px solid var(--line);
+  border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--fg);font:inherit}
+.school b{font-family:var(--display);font-size:1.12rem;font-weight:700}
+.school small{color:var(--muted);font-size:.78rem;font-variant-numeric:tabular-nums;align-self:center}
+.school i{grid-column:1/-1;font-style:normal;color:var(--muted);font-size:.82rem;line-height:1.45}
+.school[aria-pressed="true"]{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.school[aria-pressed="true"] b{color:var(--gold)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:grid;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}
+select,input[type=range]{width:100%}
+select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 6px}
+input[type=range]{accent-color:var(--accent)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;border:0;background:transparent;color:var(--fg);font:inherit;padding:6px 4px;cursor:pointer}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.check{display:flex;gap:8px;align-items:center;font-size:.86rem}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:9px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:progress}
+.ai{display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:14px}
+.ai p{margin:0;font-size:.82rem;color:var(--muted)}
+.stagecol{display:grid;gap:12px;min-width:0}
+.well{background:var(--well);border-radius:12px;padding:clamp(12px,3vw,36px);display:grid;place-items:center;min-width:0}
+canvas{display:block;width:100%;height:auto;max-width:100%;box-shadow:0 1px 2px rgba(0,0,0,.25),0 14px 34px rgba(0,0,0,.22);border-radius:2px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px}
+.note h3{margin:0;font-family:var(--display);font-size:1.25rem;color:var(--gold)}
+.note p{margin:0;color:var(--fg);max-width:70ch}
+.note .ainote{color:var(--muted);font-size:.9rem}
+.status{font-size:.85rem;color:var(--muted);min-height:1.4em}
+.status.err{color:#B3412E}
+details{font-size:.86rem;color:var(--muted)}
+details summary{cursor:pointer;color:var(--fg)}
+details p{margin:.4em 0 0;max-width:72ch}
+@media (prefers-reduced-motion:no-preference){.school,.seg button,.btn{transition:background .15s,border-color .15s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>ديوان <span>النسخ</span></h1>
+    <p>اكتب نصّك، واختر أستاذًا من أساتذة النسخ، فيُركَّب السطر على عادته في التطويل والمسافات والتشكيل والإطار.</p>
+  </header>
+
+  <div class="studio">
+    <aside class="panel" aria-label="أدوات الكتابة">
+      <div>
+        <h2><label for="txt">النص</label></h2>
+        <textarea id="txt" dir="rtl" spellcheck="false"></textarea>
+      </div>
+
+      <div>
+        <h2>المدرسة والأستاذ</h2>
+        <div class="schools" id="schools" role="group" aria-label="المدارس"></div>
+      </div>
+
+      <div>
+        <h2>نوع اللوحة</h2>
+        <div class="seg" id="layout" role="group" aria-label="نوع اللوحة">
+          <button type="button" data-v="line">سطر</button>
+          <button type="button" data-v="piece">قطعة</button>
+          <button type="button" data-v="page">صفحة</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <label class="f">القلم (الخط)
+          <select id="font">
+            <option value="Amiri|400">أميري</option>
+            <option value="Amiri|700">أميري ثقيل</option>
+            <option value="Amiri Quran|400">أميري المصحفي</option>
+            <option value="Scheherazade New|400">شهرزاد</option>
+            <option value="Scheherazade New|700">شهرزاد ثقيل</option>
+            <option value="Noto Naskh Arabic|500">نوتو نسخ</option>
+            <option value="Lateef|400">لطيف</option>
+            <option value="Markazi Text|400">مركزي</option>
+            <option value="Mirza|400">ميرزا</option>
+          </select>
+        </label>
+        <label class="f">الحركات
+          <select id="tashkeel">
+            <option value="keep">كما في النص</option>
+            <option value="strip">بلا حركات</option>
+          </select>
+        </label>
+        <label class="f">المداد
+          <select id="ink">
+            <option value="smoke">مداد دخاني</option>
+            <option value="sepia">عفصي بني</option>
+            <option value="lapis">لازوردي</option>
+            <option value="crimson">قرمزي</option>
+            <option value="gold">ذهب محلول</option>
+          </select>
+        </label>
+        <label class="f">الورق
+          <select id="paper">
+            <option value="ahar">آهار عاجي</option>
+            <option value="nohudi">نخودي معتّق</option>
+            <option value="white">أبيض مصقول</option>
+            <option value="lacquer">لوحة كحلية</option>
+          </select>
+        </label>
+        <label class="f">حجم القلم <input type="range" id="size" min="40" max="140" step="2"></label>
+        <label class="f">التطويل (الكشيدة) <input type="range" id="kashida" min="0" max="1" step="0.05"></label>
+        <label class="f">ما بين الأسطر <input type="range" id="lh" min="1.5" max="2.6" step="0.05"></label>
+        <label class="check"><input type="checkbox" id="dots"> مسطرة النقاط</label>
+      </div>
+
+      <div class="ai">
+        <h2>التركيب بالذكاء الاصطناعي</h2>
+        <label class="check"><input type="checkbox" id="aiTashkeel" checked> مع التشكيل التام</label>
+        <button class="btn" type="button" id="aiBtn">ركّب على نمط الأستاذ</button>
+        <p id="aiInfo">يشكّل النص ويقسّمه أسطرًا على عادة الأستاذ المختار، دون تغيير كلمة واحدة.</p>
+      </div>
+    </aside>
+
+    <section class="stagecol" aria-label="اللوحة">
+      <div class="well"><canvas id="stage" role="img" aria-label="معاينة الخط"></canvas></div>
+      <div class="bar">
+        <div class="status" id="status" aria-live="polite"></div>
+        <button class="btn ghost" type="button" id="saveBtn" hidden>حفظ اللوحة صورة</button>
+      </div>
+      <div class="note">
+        <h3 id="nName"></h3>
+        <p id="nDesc"></p>
+        <p class="ainote" id="nAi" hidden></p>
+      </div>
+      <details>
+        <summary>كيف يعمل هذا؟</summary>
+        <p>الحروف تُرسم بخطوط نسخ مفتوحة صُمّمت على أصول النسخ التراثي (أميري مأخوذ عن نسخ مطبعة بولاق، وشهرزاد ونوتو على النسخ التقليدي). أمّا «نمط الأستاذ» فيتحكّم في طريقة التركيب: مواضع التطويل وعدده، وتوزيع المسافات، وكثافة الأسطر، والمداد والورق والإطار. والذكاء الاصطناعي يتولّى التشكيل وتقسيم الأسطر.</p>
+        <p>هذه محاكاة لأسلوب التركيب، وليست يد الخطاط نفسها. توليد الحروف بيد حافظ عثمان أو شوقي حقًّا يحتاج نموذجًا يُدرَّب على مجموعة كبيرة من مَشقهم وكراريسهم.</p>
+      </details>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+
+/* ---------- Schools ---------- */
+const SCHOOLS=[
+ {id:"shevki",name:"محمد شوقي أفندي",dates:"١٢٤٥–١٣٠٤هـ",role:"ذروة التناسب في النسخ",
+  desc:"بلغ النسخ على يده ذروة التناسب والاتزان، وما زالت كراريس مشقه مرجع تعليم النسخ إلى اليوم. حروفه مستوية الأحجام، وتطويله معتدل يقع غالبًا قبل آخر الكلمة.",
+  font:"Amiri|400",lh:1.95,kashida:.5,space:1.0,ink:"smoke",paper:"ahar",layout:"piece",dots:true,size:88,
+  ai:"محمد شوقي أفندي (ت ١٣٠٤هـ): تناسب دقيق، أسطر متقاربة الطول، تطويل معتدل في كلمة أو كلمتين من السطر، وقطعة المشق تبدأ غالبًا بـ«رب يسر ولا تعسر رب تمم بالخير»."},
+ {id:"hafiz",name:"الحافظ عثمان",dates:"١٠٥٢–١١١٠هـ",role:"المجدّد الثاني",
+  desc:"جدّد قاعدة حمد الله فصار النسخ على يده أوضح وأخفّ، وكتب المصاحف وابتكر الحِلية الشريفة. سطوره فسيحة، والتطويل عنده قليل هادئ.",
+  font:"Amiri Quran|400",lh:2.15,kashida:.3,space:1.12,ink:"smoke",paper:"ahar",layout:"piece",dots:false,size:84,
+  ai:"الحافظ عثمان (ت ١١١٠هـ): وضوح وخفة، مسافات فسيحة بين الكلمات، تطويل قليل، أسطر قصيرة متوازنة كما في الحلية الشريفة."},
+ {id:"hamdullah",name:"الشيخ حمد الله الأماسي",dates:"٨٤٠–٩٢٦هـ",role:"مؤسس المدرسة العثمانية",
+  desc:"هذّب أقلام ياقوت المستعصمي وأعطى النسخ العثماني ملامحه الأولى: حروف ممتلئة، وسطور هادئة متصلة، وتطويل معتدل.",
+  font:"Amiri|700",lh:2.0,kashida:.45,space:1.0,ink:"sepia",paper:"nohudi",layout:"piece",dots:false,size:84,
+  ai:"الشيخ حمد الله الأماسي (ت ٩٢٦هـ): حروف ممتلئة، أسطر متصلة متقاربة، تطويل معتدل، روح المخطوطات المبكرة."},
+ {id:"rakim",name:"مصطفى راقم",dates:"١١٧١–١٢٤١هـ",role:"صاحب الجلي والطغراء",
+  desc:"اشتهر بالثلث الجلي وتهذيب الطغراء، ونسخه متين واسع المسافات، يحب التطويل الممدود في الكلمة الأخيرة من السطر.",
+  font:"Scheherazade New|400",lh:2.0,kashida:.6,space:1.05,ink:"smoke",paper:"ahar",layout:"line",dots:false,size:96,
+  ai:"مصطفى راقم (ت ١٢٤١هـ): متانة وفسحة، تطويل ممدود يميل إلى آخر السطر، تركيب أقرب إلى اللوحة."},
+ {id:"hamid",name:"حامد الآمدي",dates:"١٣٠٩–١٤٠٢هـ",role:"آخر كبار العثمانيين",
+  desc:"آخر كبار الخطاطين في المدرسة العثمانية، نسخه رشيق محكم الإيقاع، وأسطره متقاربة نظيفة قليلة الزخرف.",
+  font:"Noto Naskh Arabic|500",lh:1.9,kashida:.35,space:.95,ink:"smoke",paper:"white",layout:"piece",dots:false,size:80,
+  ai:"حامد الآمدي (ت ١٤٠٢هـ): رشاقة وإيقاع محكم، أسطر متقاربة، تطويل قليل، بساطة في التركيب."},
+ {id:"baghdadi",name:"هاشم محمد البغدادي",dates:"١٣٣٥–١٣٩٣هـ",role:"صاحب «قواعد الخط العربي»",
+  desc:"شيخ مدرسة بغداد، تتلمذ على الأساتذة الأتراك، وضبط النسخ بالنقاط في كتابه «قواعد الخط العربي»، فخطه منضبط الموازين قليل التطويل.",
+  font:"Scheherazade New|400",lh:2.05,kashida:.25,space:1.0,ink:"smoke",paper:"white",layout:"piece",dots:true,size:88,
+  ai:"هاشم البغدادي (ت ١٣٩٣هـ): ضبط القواعد والموازين بالنقاط، تطويل قليل، أسطر تعليمية واضحة."},
+ {id:"taha",name:"عثمان طه",dates:"وُلد ١٣٥٣هـ",role:"كاتب مصحف المدينة",
+  desc:"كتب مصحف المدينة النبوية على قاعدة النسخ العثماني. نسخ مصحفي واضح، تملأ فيه الكشيدة السطر حتى تتساوى الأسطر في الطول.",
+  font:"Amiri Quran|400",lh:2.2,kashida:.8,space:.95,ink:"smoke",paper:"ahar",layout:"page",dots:false,size:62,
+  ai:"عثمان طه: نسخ مصحفي، تشكيل تام، أسطر متساوية الطول تملؤها الكشيدة، وضوح تام."},
+ {id:"bulaq",name:"مطبعة بولاق",dates:"القرن ١٣هـ",role:"النسخ الطباعي المصري",
+  desc:"النسخ الذي صُبّت عليه حروف مطبعة بولاق في القاهرة، وعليه قام خط «أميري». أقرب شيء إلى صفحات الكتب التراثية المطبوعة.",
+  font:"Amiri|400",lh:1.75,kashida:.2,space:1.0,ink:"smoke",paper:"nohudi",layout:"page",dots:false,size:56,
+  ai:"مطبعة بولاق: نسخ طباعي للكتب، أسطر كثيفة مضبوطة، تطويل قليل، تشكيل عند اللبس فقط إلا إن طُلب التام."}
+];
+
+const INKS={smoke:"#1B1714",sepia:"#3E2A18",lapis:"#1D3A6E",crimson:"#7A1F1F",gold:"gold"};
+const PAPERS={
+  ahar:{bg:"#EFE2C4",edge:"#D8C499",margin:"#D9C8A0"},
+  nohudi:{bg:"#E5CFA0",edge:"#C9AE77",margin:"#C9B07C"},
+  white:{bg:"#F6F2E8",edge:"#E2DACA",margin:"#E3DCCB"},
+  lacquer:{bg:"#15243A",edge:"#0C1626",margin:"#0F1C30",dark:true}
+};
+
+/* ---------- State ---------- */
+const DEFAULT_TEXT="رَبِّ يَسِّرْ وَلَا تُعَسِّرْ\nرَبِّ تَمِّمْ بِالْخَيْرِ";
+const st={text:DEFAULT_TEXT,school:"shevki",layout:"piece",font:"Amiri|400",tashkeel:"keep",ink:"smoke",paper:"ahar",
+  size:88,kashida:.5,lh:1.95,dots:true,ai:null};
+try{const t=localStorage.getItem("naskh.text");if(t)st.text=t;}catch(e){}
+
+/* ---------- Arabic text helpers ---------- */
+const DIAC=/[ؐ-ًؚ-ٰٟۖ-ۭ]/;
+const LET=/[ء-غف-يٱ-ۓ]/;
+const JOIN=new Set("بتثجحخسشصضطظعغفقكلمنهيئپچگک".split(""));
+const stripMarks=t=>t.replace(/[ؐ-ًؚ-ٰٟۖ-ۭ]/g,"");
+const norm=t=>stripMarks(t).replace(/ـ/g,"").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه")
+  .replace(/[^ء-يٱ-ۓA-Za-z0-9٠-٩]/g,"");
+
+function candidates(w){
+  const b=[];for(let i=0;i<w.length;i++)if(!DIAC.test(w[i]))b.push(i);
+  const out=[];
+  for(let k=0;k<b.length-1;k++){
+    const c=w[b[k]],n=w[b[k+1]];
+    if(!JOIN.has(c)||!LET.test(n))continue;
+    if(c==="ل"&&"اأإآٱ".includes(n))continue;
+    let sc=1;
+    if(k===b.length-2)sc+=2;               // before the final letter: the classical place
+    if("سشصضطظكف".includes(c))sc+=1;       // letters that carry a stretch well
+    out.push({pos:b[k+1],sc});
+  }
+  return out.sort((a,b)=>b.sc-a.sc);
+}
+const stretch=(w,pos,n)=>n>0?w.slice(0,pos)+"ـ".repeat(n)+w.slice(pos):w;
+
+/* ---------- Composition ---------- */
+function wrap(ctx,text,maxW,space){
+  const out=[];
+  for(const para of text.split(/\n+/)){
+    const words=para.trim().split(/\s+/).filter(Boolean);if(!words.length)continue;
+    let cur=[];
+    for(const w of words){
+      const t=[...cur,w].join(" ");
+      if(cur.length&&ctx.measureText(t).width*(space>1?1+(space-1)*.3:1)>maxW){out.push(cur.join(" "));cur=[w];}
+      else cur.push(w);
+    }
+    if(cur.length)out.push(cur.join(" "));
+  }
+  return out;
+}
+function composeLine(ctx,line,target,o){
+  const words=line.split(/\s+/).filter(Boolean);
+  const mw=w=>ctx.measureText(w).width;
+  const sp=mw(" ")*o.space;
+  const gaps=words.length-1;
+  const natural=words.reduce((a,w)=>a+mw(w),0)+sp*gaps;
+  if(!o.justify||natural>=target)return{words,gap:sp,width:natural};
+  const tw=mw("ـ");
+  const maxPer=Math.round(o.kashida*6)+(o.kashida>0?1:0);
+  let info=words.map((w,i)=>({i,c:candidates(w)[0],n:0})).filter(x=>x.c);
+  const K=Math.max(1,Math.ceil(o.kashida*words.length*.55));
+  info.sort((a,b)=>b.c.sc-a.c.sc||b.i-a.i);info=info.slice(0,K);
+  let width=natural,guard=0;
+  if(maxPer>0&&tw>0)while(width+tw<=target&&guard++<600){
+    const c=info.filter(x=>x.n<maxPer);if(!c.length)break;
+    c.sort((a,b)=>a.n-b.n||b.i-a.i);c[0].n++;width+=tw;
+  }
+  info.forEach(x=>{words[x.i]=stretch(words[x.i],x.c.pos,x.n);});
+  const real=words.reduce((a,w)=>a+mw(w),0);
+  let gap=sp;
+  if(gaps>0)gap=Math.max(sp,Math.min(sp*3.2,(target-real)/gaps));
+  return{words,gap,width:real+gap*gaps};
+}
+
+/* ---------- Drawing ---------- */
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function goldGrad(ctx,x0,y0,x1,y1){const g=ctx.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,"#8A6420");g.addColorStop(.45,"#E5C46A");g.addColorStop(.7,"#B98B33");g.addColorStop(1,"#7E5A1C");return g;}
+function paperFill(ctx,W,H,p){
+  ctx.fillStyle=p.bg;ctx.fillRect(0,0,W,H);
+  const r=rng(7);
+  for(let i=0;i<W*H/260;i++){ctx.fillStyle=p.dark?`rgba(255,255,255,${r()*.035})`:`rgba(90,60,20,${r()*.05})`;ctx.fillRect(r()*W,r()*H,1+r()*2,1+r()*1.5);}
+  const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);
+  v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,p.dark?"rgba(0,0,0,.35)":"rgba(110,70,20,.16)");
+  ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+}
+function rosette(ctx,x,y,r){
+  ctx.save();ctx.translate(x,y);ctx.fillStyle=goldGrad(ctx,-r,-r,r,r);
+  for(let i=0;i<8;i++){ctx.rotate(Math.PI/4);ctx.beginPath();ctx.ellipse(0,-r*.55,r*.22,r*.48,0,0,Math.PI*2);ctx.fill();}
+  ctx.beginPath();ctx.arc(0,0,r*.28,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#7A1F1F";ctx.beginPath();ctx.arc(0,0,r*.12,0,Math.PI*2);ctx.fill();ctx.restore();
+}
+function frame(ctx,W,H,layout,p,m){
+  if(layout==="piece"){
+    ctx.fillStyle=p.margin;ctx.fillRect(0,0,W,H);
+    const r=rng(3);for(let i=0;i<220;i++){ctx.fillStyle=`rgba(${p.dark?"200,170,90":"150,110,40"},${r()*.08})`;ctx.beginPath();ctx.arc(r()*W,r()*H,2+r()*14,0,Math.PI*2);ctx.fill();}
+    ctx.save();ctx.beginPath();ctx.rect(m,m,W-2*m,H-2*m);ctx.clip();paperFill(ctx,W,H,p);ctx.restore();
+    ctx.strokeStyle=goldGrad(ctx,0,0,W,H);ctx.lineWidth=9;ctx.strokeRect(m-5,m-5,W-2*m+10,H-2*m+10);
+    ctx.strokeStyle=p.dark?"#E8D9A8":"#1B1714";ctx.lineWidth=1.4;ctx.strokeRect(m+6,m+6,W-2*m-12,H-2*m-12);
+    ctx.strokeStyle=goldGrad(ctx,0,0,W,H);ctx.lineWidth=2;ctx.strokeRect(m+12,m+12,W-2*m-24,H-2*m-24);
+    const rr=m*.32;[[m+40,m+40],[W-m-40,m+40],[m+40,H-m-40],[W-m-40,H-m-40]].forEach(([x,y])=>rosette(ctx,x,y,rr));
+  }else if(layout==="page"){
+    paperFill(ctx,W,H,p);
+    const g=goldGrad(ctx,0,0,W,H);
+    ctx.strokeStyle=g;ctx.lineWidth=7;ctx.strokeRect(m*.55,m*.55,W-m*1.1,H-m*1.1);
+    ctx.strokeStyle="#8C2A22";ctx.lineWidth=1.6;ctx.strokeRect(m*.55+9,m*.55+9,W-m*1.1-18,H-m*1.1-18);
+    ctx.strokeStyle=p.dark?"#E8D9A8":"#1B1714";ctx.lineWidth=1;ctx.strokeRect(m*.55+14,m*.55+14,W-m*1.1-28,H-m*1.1-28);
+  }else{
+    paperFill(ctx,W,H,p);
+  }
+}
+function dotScale(ctx,x,yBase,fs,color,dark){
+  const nib=fs*.115;ctx.save();ctx.fillStyle=color;ctx.globalAlpha=.6;
+  for(let i=0;i<5;i++){const cy=yBase-nib*.72-i*nib*1.02;ctx.beginPath();ctx.moveTo(x,cy-nib*.5);ctx.lineTo(x+nib*.5,cy);ctx.lineTo(x,cy+nib*.5);ctx.lineTo(x-nib*.5,cy);ctx.closePath();ctx.fill();}
+  ctx.globalAlpha=.75;ctx.fillStyle=dark?"#E8D9A8":"#5A4426";ctx.font=`${Math.max(15,fs*.2)}px "IBM Plex Sans Arabic",sans-serif`;
+  ctx.textAlign="center";ctx.direction="rtl";ctx.fillText("الألف ٥ نقاط",x,yBase+fs*.32);ctx.restore();
+}
+
+const canvas=$("#stage"),ctx=canvas.getContext("2d");
+let renderToken=0;
+async function render(){
+  const tok=++renderToken;
+  const [family,weight]=st.font.split("|");
+  const fs=st.size;
+  const fontStr=`${weight} ${fs}px "${family}", "Amiri", serif`;
+  try{await document.fonts.load(fontStr,"بسم الله");}catch(e){}
+  if(tok!==renderToken)return;
+  const school=SCHOOLS.find(s=>s.id===st.school);
+  const p=PAPERS[st.paper];
+  const layout=st.layout;
+  const W=layout==="page"?1200:layout==="piece"?1400:1600;
+  const m=layout==="piece"?120:layout==="page"?100:70;
+  const inner=layout==="piece"?m+90:layout==="page"?m+40:m;
+  const dotsW=st.dots?fs*.9:0;
+  const maxW=W-2*inner-dotsW;
+  ctx.font=fontStr;ctx.direction="rtl";
+  let src=(st.ai&&st.ai.for===st.text)?st.ai.lines.join("\n"):st.text;
+  if(st.tashkeel==="strip")src=stripMarks(src);
+  const lines=wrap(ctx,src,maxW,school.space);
+  if(!lines.length)lines.push("");
+  const o={space:school.space,kashida:st.kashida};
+  let composed;
+  if(layout==="line"){
+    composed=lines.map(l=>{const nat=ctx.measureText(l).width;return composeLine(ctx,l,Math.min(maxW,nat*(1+st.kashida*.35)),{...o,justify:true});});
+  }else{
+    composed=lines.map((l,i)=>composeLine(ctx,l,maxW,{...o,justify:layout==="piece"||i<lines.length-1}));
+  }
+  const lh=fs*st.lh;
+  const textW=Math.max(...composed.map(c=>c.width));
+  const Wf=layout==="line"?Math.min(W,Math.max(900,textW+2*inner+dotsW)):W;
+  const H=Math.round(inner*2+lh*lines.length+fs*.1);
+  canvas.width=Wf;canvas.height=H;
+  ctx.direction="rtl";
+  frame(ctx,Wf,H,layout,p,m);
+  ctx.font=fontStr;ctx.textBaseline="alphabetic";ctx.textAlign="right";
+  const ink=INKS[st.ink];
+  const inkColor=p.dark&&st.ink==="smoke"?"#EFE6CF":ink;
+  ctx.fillStyle=ink==="gold"?goldGrad(ctx,0,inner,0,H-inner):inkColor;
+  const centerX=st.dots?(Wf-dotsW)/2:Wf/2;
+  composed.forEach((c,i)=>{
+    const y=inner+lh*i+lh*.64;
+    let x=centerX+c.width/2;
+    c.words.forEach(w=>{ctx.fillText(w,x,y);x-=ctx.measureText(w).width+c.gap;});
+  });
+  if(st.dots){dotScale(ctx,Wf-inner-dotsW*.35,inner+lh*.64,fs,ink==="gold"?"#B98B33":inkColor,p.dark);}
+  canvas.setAttribute("aria-label",`${src.replace(/\n/g," ")} — على نمط ${school.name}`);
+}
+
+/* ---------- UI ---------- */
+const schoolsEl=$("#schools");
+SCHOOLS.forEach(s=>{
+  const b=document.createElement("button");b.type="button";b.className="school";b.dataset.id=s.id;
+  const n=document.createElement("b");n.textContent=s.name;
+  const d=document.createElement("small");d.textContent=s.dates;
+  const r=document.createElement("i");r.textContent=s.role;
+  b.append(n,d,r);b.addEventListener("click",()=>applySchool(s.id));schoolsEl.append(b);
+});
+function syncControls(){
+  $("#txt").value=st.text;
+  document.querySelectorAll(".school").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.id===st.school)));
+  document.querySelectorAll("#layout button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===st.layout)));
+  $("#font").value=st.font;$("#tashkeel").value=st.tashkeel;$("#ink").value=st.ink;$("#paper").value=st.paper;
+  $("#size").value=st.size;$("#kashida").value=st.kashida;$("#lh").value=st.lh;$("#dots").checked=st.dots;
+  const s=SCHOOLS.find(x=>x.id===st.school);
+  $("#nName").textContent=`${s.name} · ${s.dates}`;$("#nDesc").textContent=s.desc;
+  const n=$("#nAi");if(st.ai&&st.ai.for===st.text&&st.ai.note){n.textContent=st.ai.note;n.hidden=false;}else n.hidden=true;
+}
+function applySchool(id){
+  const s=SCHOOLS.find(x=>x.id===id);
+  Object.assign(st,{school:id,font:s.font,lh:s.lh,kashida:s.kashida,ink:s.ink,paper:s.paper,layout:s.layout,dots:s.dots,size:s.size});
+  syncControls();render();
+}
+$("#txt").addEventListener("input",e=>{st.text=e.target.value;try{localStorage.setItem("naskh.text",st.text);}catch(_){}syncControls();render();});
+document.querySelectorAll("#layout button").forEach(b=>b.addEventListener("click",()=>{st.layout=b.dataset.v;
+  if(st.layout==="page"&&st.size>72)st.size=60;if(st.layout!=="page"&&st.size<70)st.size=84;syncControls();render();}));
+[["font","font"],["tashkeel","tashkeel"],["ink","ink"],["paper","paper"]].forEach(([id,k])=>$("#"+id).addEventListener("change",e=>{st[k]=e.target.value;render();}));
+[["size","size"],["kashida","kashida"],["lh","lh"]].forEach(([id,k])=>$("#"+id).addEventListener("input",e=>{st[k]=parseFloat(e.target.value);render();}));
+$("#dots").addEventListener("change",e=>{st.dots=e.target.checked;render();});
+
+function setStatus(t,err){const s=$("#status");s.textContent=t;s.classList.toggle("err",!!err);}
+
+/* ---------- Capabilities: AI (sample) + downloads ---------- */
+let sampleNs=null,downloadsNs=null;
+const aiBtn=$("#aiBtn");
+aiBtn.disabled=true;$("#aiInfo").textContent="جارٍ الاتصال بالمساعد…";
+if(window.claude&&typeof window.claude.use==="function"){
+  window.claude.use("sample").then(s=>{sampleNs=s;updateAi();}).catch(()=>updateAi());
+  window.claude.use("downloads").then(d=>{downloadsNs=d;$("#saveBtn").hidden=!d;}).catch(()=>{});
+}else{updateAi();}
+function updateAi(){
+  if(sampleNs){aiBtn.disabled=false;$("#aiInfo").textContent="يشكّل النص ويقسّمه أسطرًا على عادة الأستاذ المختار، دون تغيير كلمة واحدة.";}
+  else{aiBtn.disabled=true;$("#aiInfo").textContent="التركيب بالذكاء الاصطناعي متاح عند فتح الصفحة داخل Claude. بقية الأدوات تعمل هنا كاملة.";}
+}
+aiBtn.addEventListener("click",async()=>{
+  if(!sampleNs)return;
+  const text=st.text.trim();if(!text){setStatus("اكتب نصًّا أولًا.",true);return;}
+  const s=SCHOOLS.find(x=>x.id===st.school);
+  const [family,weight]=st.font.split("|");
+  ctx.font=`${weight} ${st.size}px "${family}", serif`;
+  const W=st.layout==="page"?1200:st.layout==="piece"?1400:1600;
+  const inner=st.layout==="piece"?210:st.layout==="page"?140:70;
+  const avg=ctx.measureText("في الكتابة العربية").width/18;
+  const perLine=Math.max(8,Math.round((W-2*inner)/avg*.85));
+  const layoutName={line:"سطر واحد (لوحة سطرية)",piece:"قطعة (٢ إلى ٦ أسطر متوازنة كقطع المشق)",page:"صفحة كتاب أو مصحف (أسطر كثيفة)"}[st.layout];
+  const prompt=`أنت خطّاط نسخ متمكّن من المدرسة العثمانية ومن علم الضبط والتشكيل.
+المطلوب: تهيئة النص التالي للكتابة بخط النسخ على نمط: ${s.ai}
+نوع اللوحة: ${layoutName}. يتّسع السطر لنحو ${perLine} حرفًا.
+القواعد:
+1) لا تغيّر أي كلمة ولا ترتيبها ولا تحذف ولا تضف كلمات، ولا تضف تطويلًا (ـ)؛ التطويل يتولّاه المحرّك.
+2) ${document.getElementById("aiTashkeel").checked?"شكّل النص تشكيلًا تامًّا صحيحًا لغويًّا (وإن كان آية فبضبط المصحف)، مع الشدّة والسكون.":"احتفظ بالحركات كما هي، ولا تضف تشكيلًا."}
+3) قسّم النص إلى أسطر متوازنة كما يفعل الأستاذ في هذا النوع من اللوحات، ولا تقطع الكلمة الواحدة.
+4) note: جملة أو جملتان بالعربية عن طريقة الأستاذ في تركيب مثل هذا النص (مواضع التطويل والمسافات).
+أعد JSON فقط بهذا الشكل: {"lines":["..."],"note":"..."}
+
+النص:
+${text}`;
+  aiBtn.disabled=true;setStatus("يركّب المساعد النص على نمط "+s.name+"…");
+  try{
+    const res=await sampleNs.json(prompt,{modelTier:"default"});
+    const lines=Array.isArray(res&&res.lines)?res.lines.filter(l=>typeof l==="string"&&l.trim()).map(l=>l.replace(/ـ/g,"").trim()):[];
+    if(!lines.length)throw{code:"empty"};
+    if(norm(lines.join(""))!==norm(text)){setStatus("غيّر المساعد شيئًا من كلمات النص، فأبقيتُ النص الأصلي كما هو. جرّب مرة أخرى.",true);return;}
+    st.ai={for:st.text,lines,note:typeof res.note==="string"?res.note.slice(0,400):""};
+    setStatus("تمّ التركيب على نمط "+s.name+".");syncControls();render();
+  }catch(e){
+    const c=e&&e.code;
+    if(c==="not_granted"){sampleNs=null;updateAi();setStatus("لم يُسمح للصفحة باستخدام المساعد.",true);}
+    else if(c==="rate_limited")setStatus("طلبات كثيرة متتابعة؛ انتظر قليلًا ثم أعد المحاولة.",true);
+    else setStatus("تعذّر التركيب هذه المرة. أعد المحاولة.",true);
+  }finally{if(sampleNs)aiBtn.disabled=false;}
+});
+$("#saveBtn").addEventListener("click",()=>{
+  if(!downloadsNs)return;
+  canvas.toBlob(b=>{if(!b)return;downloadsNs.save({filename:`naskh-${st.school}.png`,data:b})
+    .then(()=>setStatus("حُفظت اللوحة."))
+    .catch(e=>{if(e&&e.code==="declined")return;if(e&&e.code==="unavailable"){$("#saveBtn").hidden=true;}setStatus("تعذّر حفظ الصورة هنا.",true);});},"image/png");
+});
+
+syncControls();render();
+document.fonts&&document.fonts.ready.then(render);
+})();
+</script>
+
+</body>
+</html>
