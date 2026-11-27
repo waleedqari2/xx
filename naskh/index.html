@@ -135,6 +135,7 @@ details p{margin:.4em 0 0;max-width:72ch}
             <option value="sepia">عفصي بني</option>
             <option value="lapis">لازوردي</option>
             <option value="crimson">قرمزي</option>
+            <option value="white">أبيض</option>
             <option value="gold">ذهب محلول</option>
           </select>
         </label>
@@ -144,6 +145,17 @@ details p{margin:.4em 0 0;max-width:72ch}
             <option value="nohudi">نخودي معتّق</option>
             <option value="white">أبيض مصقول</option>
             <option value="lacquer">لوحة كحلية</option>
+            <option value="linen">كتّان</option>
+            <option value="dyed">مصبوغ عنّابي</option>
+          </select>
+        </label>
+        <label class="f">لون الحركات
+          <select id="har">
+            <option value="same">بلون المداد</option>
+            <option value="gold">ذهبي</option>
+            <option value="crimson">قرمزي</option>
+            <option value="white">أبيض</option>
+            <option value="smoke">دخاني</option>
           </select>
         </label>
         <label class="f">حجم القلم <input type="range" id="size" min="40" max="140" step="2"></label>
@@ -190,6 +202,14 @@ const $=s=>document.querySelector(s);
 
 /* ---------- Schools ---------- */
 const SCHOOLS=[
+ {id:"mine-red",name:"لوحتك: أبيض على عنّابي",dates:"من خطّك",role:"مداد أبيض على ورق مصبوغ",
+  desc:"مأخوذ من لوحتك البيضاء على الورق العنّابي: قلم عريض، ومداد أبيض يتكاثف على حواف الحرف وتنفتح فيه خطوط الألياف حيث يجفّ القلم، وتطويل ممدود.",
+  font:"Amiri|700",lh:2.0,kashida:.7,space:1.0,ink:"white",paper:"dyed",layout:"line",dots:false,size:118,har:"same",reed:.9,
+  ai:"أسلوب صاحب اللوحة: قلم عريض ظاهر الألياف، تطويل ممدود جريء، تركيب لوحة سطرية واحدة متوازنة."},
+ {id:"mine-gold",name:"لوحتك: قرمزي وذهب",dates:"من خطّك",role:"قرمزي على كتّان، والحركات بالذهب",
+  desc:"مأخوذ من لوحتك القرمزية على الكتّان: الحروف بمداد قرمزي شفيف تظهر فيه ألياف القصبة على طول الضربة، والحركات بالذهب.",
+  font:"Amiri|700",lh:2.1,kashida:.6,space:1.05,ink:"crimson",paper:"linen",layout:"piece",dots:false,size:104,har:"gold",reed:.95,
+  ai:"أسلوب صاحب اللوحة: حروف قرمزية بقلم عريض، حركات تامة بالذهب، تطويل ممدود، أسطر قليلة فسيحة."},
  {id:"shevki",name:"محمد شوقي أفندي",dates:"١٢٤٥–١٣٠٤هـ",role:"ذروة التناسب في النسخ",
   desc:"بلغ النسخ على يده ذروة التناسب والاتزان، وما زالت كراريس مشقه مرجع تعليم النسخ إلى اليوم. حروفه مستوية الأحجام، وتطويله معتدل يقع غالبًا قبل آخر الكلمة.",
   font:"Amiri|400",lh:1.95,kashida:.5,space:1.0,ink:"smoke",paper:"ahar",layout:"piece",dots:true,size:88,
@@ -224,18 +244,20 @@ const SCHOOLS=[
   ai:"مطبعة بولاق: نسخ طباعي للكتب، أسطر كثيفة مضبوطة، تطويل قليل، تشكيل عند اللبس فقط إلا إن طُلب التام."}
 ];
 
-const INKS={smoke:"#17110D",sepia:"#3E2A18",lapis:"#1D3A6E",crimson:"#7A1F1F",gold:"gold"};
+const INKS={smoke:"#17110D",sepia:"#3E2A18",lapis:"#1D3A6E",crimson:"#8E1B1E",white:"#F4F1EA",gold:"gold"};
 const PAPERS={
   ahar:{bg:"#EFE2C4",edge:"#D8C499",margin:"#D9C8A0"},
   nohudi:{bg:"#E5CFA0",edge:"#C9AE77",margin:"#C9B07C"},
   white:{bg:"#F6F2E8",edge:"#E2DACA",margin:"#E3DCCB"},
-  lacquer:{bg:"#15243A",edge:"#0C1626",margin:"#0F1C30",dark:true}
+  lacquer:{bg:"#15243A",edge:"#0C1626",margin:"#0F1C30",dark:true},
+  linen:{bg:"#E9E0CA",edge:"#D4C7A8",margin:"#D2C5A6",tex:"linen"},
+  dyed:{bg:"#8D1B22",edge:"#5E1016",margin:"#5A0F15",dark:true,tex:"dyed"}
 };
 
 /* ---------- State ---------- */
 const DEFAULT_TEXT="رَبِّ يَسِّرْ وَلَا تُعَسِّرْ\nرَبِّ تَمِّمْ بِالْخَيْرِ";
 const st={text:DEFAULT_TEXT,school:"shevki",layout:"piece",font:"Amiri|400",tashkeel:"keep",ink:"smoke",paper:"ahar",
-  size:88,kashida:.5,lh:1.95,dots:true,reed:.75,ai:null};
+  size:88,kashida:.5,lh:1.95,dots:true,reed:.75,har:"same",ai:null};
 try{const t=localStorage.getItem("naskh.text");if(t)st.text=t;}catch(e){}
 
 /* ---------- Arabic text helpers ---------- */
@@ -307,6 +329,15 @@ function goldGrad(ctx,x0,y0,x1,y1){const g=ctx.createLinearGradient(x0,y0,x1,y1)
 function paperFill(ctx,W,H,p){
   ctx.fillStyle=p.bg;ctx.fillRect(0,0,W,H);
   const r=rng(7);
+  if(p.tex==="dyed"){ // hand-dyed paper: uneven clouds of dye
+    for(let i=0;i<90;i++){const x=r()*W,y=r()*H,rad=40+r()*260,g=ctx.createRadialGradient(x,y,0,x,y,rad);
+      const c=r()<.5?"60,0,8":"190,60,60";g.addColorStop(0,`rgba(${c},${.05+r()*.09})`);g.addColorStop(1,`rgba(${c},0)`);ctx.fillStyle=g;ctx.fillRect(x-rad,y-rad,rad*2,rad*2);}
+  }
+  if(p.tex==="linen"){ // woven texture
+    for(let y=0;y<H;y+=.9+r()*1.4){let x=-r()*40;while(x<W){const l=20+r()*160;ctx.fillStyle=`rgba(${r()<.55?"110,92,58":"255,252,240"},${.03+r()*.07})`;ctx.fillRect(x,y,l,.5+r()*.6);x+=l+r()*30;}}
+    for(let x=0;x<W;x+=.9+r()*1.4){let y=-r()*40;while(y<H){const l=20+r()*160;ctx.fillStyle=`rgba(${r()<.55?"110,92,58":"255,252,240"},${.02+r()*.05})`;ctx.fillRect(x,y,.5+r()*.6,l);y+=l+r()*30;}}
+    for(let i=0;i<W*H/2500;i++){ctx.fillStyle=`rgba(90,80,60,${.1+r()*.25})`;ctx.beginPath();ctx.arc(r()*W,r()*H,.4+r()*1.4,0,Math.PI*2);ctx.fill();}
+  }
   for(let i=0;i<W*H/260;i++){ctx.fillStyle=p.dark?`rgba(255,255,255,${r()*.035})`:`rgba(90,60,20,${r()*.05})`;ctx.fillRect(r()*W,r()*H,1+r()*2,1+r()*1.5);}
   const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);
   v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,p.dark?"rgba(0,0,0,.35)":"rgba(110,70,20,.16)");
@@ -345,72 +376,122 @@ function dotScale(ctx,x,yBase,fs,color,dark){
 }
 
 /* ---------- Reed pen & ink ----------
+   Modelled on real reed-pen work (broad nib, ink that runs dry, fibre striations):
    1) the glyph is stamped along the nib edge (Minkowski sum with a short segment at ~40°),
-      which gives the thick/thin contrast of a cut qalam;
+      giving the thick/thin contrast of a cut qalam;
    2) words get a slight rotation and baseline drift, as a hand does;
-   3) the pen is dipped every few words: ink is full after a dip and thins out, with dry fibre streaks;
-   4) ink pools at the edges (inner rim), mottles inside, bleeds slightly into the paper, and the edge is roughened. */
+   3) a stroke-direction field is estimated from the letter shapes (structure tensor), and
+      noise is smeared along it (line-integral convolution): the nib's fibres leave parallel
+      striations that follow each stroke, the way they do on paper;
+   4) the pen is dipped every few words: fresh ink is dense, then the striations open up as it dries;
+   5) ink pools at the edges, varies in density inside, and the edge is slightly roughened;
+   6) optionally the harakat are written in a second ink (gold, as illuminators do). */
 const S=2;
 function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 const canFilter=(()=>{try{const t=document.createElement("canvas").getContext("2d");return typeof t.filter==="string";}catch(e){return false;}})();
+const hexRGB=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const lum=([r,g,b])=>(.2126*r+.7152*g+.0722*b)/255;
+const GOLD=[176,132,46],GOLD2=[232,196,108];
+function boxBlur(src,w,h,r){
+  if(r<1)return src.slice();
+  const tmp=new Float32Array(w*h),out=new Float32Array(w*h),d=2*r+1;
+  for(let y=0;y<h;y++){const o=y*w;let s=0;for(let x=-r;x<=r;x++)s+=src[o+Math.min(w-1,Math.max(0,x))];
+    for(let x=0;x<w;x++){tmp[o+x]=s/d;s+=src[o+Math.min(w-1,x+r+1)]-src[o+Math.max(0,x-r)];}}
+  for(let x=0;x<w;x++){let s=0;for(let y=-r;y<=r;y++)s+=tmp[Math.min(h-1,Math.max(0,y))*w+x];
+    for(let y=0;y<h;y++){out[y*w+x]=s/d;s+=tmp[Math.min(h-1,y+r+1)*w+x]-tmp[Math.max(0,y-r)*w+x];}}
+  return out;
+}
 function drawInk(ctx,placed,o){
-  const {Wf,H,fs,reed,R}=o;
-  const mk=()=>{const c=document.createElement("canvas");c.width=Wf*S;c.height=H*S;return c;};
-  const c=mk(),g=c.getContext("2d");
-  g.setTransform(S,0,0,S,0,0);
-  g.font=o.fontStr;g.direction="rtl";g.textAlign="right";g.textBaseline="alphabetic";
-  const a=40*Math.PI/180,vx=Math.cos(a),vy=-Math.sin(a);
-  const len=fs*.04*reed,steps=Math.max(1,Math.ceil(len*S/.7));
+  const {Wf,H,fs,reed,R}=o;const w=Wf*S,h=H*S;
+  const ang=40*Math.PI/180,vx=Math.cos(ang),vy=-Math.sin(ang);
+  const len=fs*.05*reed,steps=Math.max(1,Math.ceil(len*S/.7));
   let level=1;
-  placed.forEach(p=>{
-    p.rot=(R()-.5)*.014*reed;p.dy=(R()-.5)*fs*.025*reed;
-    p.dry=1-level;level-=.2+R()*.15;if(level<.2)level=1;   // dip again
+  placed.forEach(p=>{p.rot=(R()-.5)*.014*reed;p.dy=(R()-.5)*fs*.025*reed;
+    p.dry=1-level;level-=.2+R()*.15;if(level<.2)level=1;});   // dip again
+  const stamp=f=>{
+    const c=document.createElement("canvas");c.width=w;c.height=h;
+    const g=c.getContext("2d",{willReadFrequently:true});
+    g.setTransform(S,0,0,S,0,0);g.font=o.fontStr;g.direction="rtl";g.textAlign="right";g.textBaseline="alphabetic";g.fillStyle="#000";
+    placed.forEach(p=>{g.save();g.translate(p.x,p.y+p.dy);g.rotate(p.rot);const t0=f(p.w);
+      for(let k=0;k<=steps;k++){const t=(k/steps-.5)*len;g.fillText(t0,vx*t,vy*t);}g.restore();});
+    return g.getImageData(0,0,w,h).data;
+  };
+  const full=stamp(t=>t);
+  const base=o.har?stamp(stripMarks):null;
+  // if a word's letters shift when its harakat are removed (mark-dependent shaping), keep that word in one ink
+  const noSplit=[];
+  if(base)placed.forEach(p=>{
+    const x0=Math.max(0,Math.floor((p.x-p.ww-fs*.1)*S)),x1=Math.min(w,Math.ceil((p.x+fs*.1)*S));
+    const y0=Math.max(0,Math.floor((p.y-fs*1.2)*S)),y1=Math.min(h,Math.ceil((p.y+fs*.6)*S));
+    let nb=0,both=0;
+    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const j=(y*w+x)*4+3;if(base[j]>128){nb++;if(full[j]>128)both++;}}
+    if(nb&&both/nb<.97)noSplit.push([x0,x1,y0,y1]);
   });
-  // 1) shape
-  g.fillStyle="#000";
-  placed.forEach(p=>{g.save();g.translate(p.x,p.y+p.dy);g.rotate(p.rot);
-    for(let k=0;k<=steps;k++){const t=(steps?k/steps-.5:0)*len;g.fillText(p.w,vx*t,vy*t);}g.restore();});
-  const mask=mk();mask.getContext("2d").drawImage(c,0,0);
-  // 2) colour
-  g.globalCompositeOperation="source-in";
-  g.fillStyle=o.gold?goldGrad(g,0,o.inner,0,H-o.inner):o.inkColor;g.fillRect(0,0,Wf,H);
-  if(reed>0){
-    // 3) mottling inside the strokes
-    g.globalCompositeOperation="destination-out";
-    const n=Math.round(Wf*H/420*reed);
-    for(let i=0;i<n;i++){g.fillStyle=`rgba(0,0,0,${R()*.16*reed})`;
-      g.beginPath();g.arc(R()*Wf,R()*H,fs*(.03+R()*.14),0,Math.PI*2);g.fill();}
-    // 4) ink pooled at the edges: blurred inverse mask, kept only inside the ink
-    if(canFilter){
-      const e=mk(),eg=e.getContext("2d");
-      eg.fillStyle=o.dark?"#FFF7E0":(o.gold?"#5A3C0E":"#000");eg.fillRect(0,0,e.width,e.height);
-      eg.globalCompositeOperation="destination-out";eg.drawImage(mask,0,0);
-      g.save();g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation="source-atop";
-      g.globalAlpha=Math.min(1,.95*reed);g.filter=`blur(${Math.max(1.5,fs*.03*S)}px)`;g.drawImage(e,0,0);g.restore();
+  if(noSplit.length)noSplit.forEach(([x0,x1,y0,y1])=>{for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const j=(y*w+x)*4+3;base[j]=full[j];}});
+
+  // half-resolution fields
+  const hw=Math.ceil(w/2),hh=Math.ceil(h/2),HN=hw*hh;
+  const A2=new Float32Array(HN);
+  for(let y=0;y<hh;y++)for(let x=0;x<hw;x++){A2[y*hw+x]=full[(Math.min(h-1,y*2)*w+Math.min(w-1,x*2))*4+3]/255;}
+  const dry=new Float32Array(HN);
+  placed.forEach(p=>{
+    const x0=Math.max(0,Math.floor((p.x-p.ww-fs*.1)*S/2)),x1=Math.min(hw,Math.ceil((p.x+fs*.1)*S/2));
+    const y0=Math.max(0,Math.floor((p.y+p.dy-fs*1.1)*S/2)),y1=Math.min(hh,Math.ceil((p.y+p.dy+fs*.5)*S/2));
+    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const i=y*hw+x;if(p.dry>dry[i])dry[i]=p.dry;}
+  });
+  const r1=Math.max(1,Math.round(fs*.012*S)),r2=Math.max(2,Math.round(fs*.045*S));
+  const B=boxBlur(boxBlur(A2,hw,hh,r1),hw,hh,r1);
+  const Jxx=new Float32Array(HN),Jxy=new Float32Array(HN),Jyy=new Float32Array(HN);
+  for(let y=1;y<hh-1;y++)for(let x=1;x<hw-1;x++){const i=y*hw+x,gx=B[i+1]-B[i-1],gy=B[i+hw]-B[i-hw];Jxx[i]=gx*gx;Jxy[i]=gx*gy;Jyy[i]=gy*gy;}
+  const bxx=boxBlur(Jxx,hw,hh,r2),bxy=boxBlur(Jxy,hw,hh,r2),byy=boxBlur(Jyy,hw,hh,r2);
+  const DX=new Float32Array(HN),DY=new Float32Array(HN);
+  for(let i=0;i<HN;i++){
+    if(bxx[i]+byy[i]<1e-7){DX[i]=1;DY[i]=0;continue;}
+    const th=.5*Math.atan2(2*bxy[i],bxx[i]-byy[i]);   // across the stroke
+    DX[i]=-Math.sin(th);DY[i]=Math.cos(th);           // along the stroke
+  }
+  const Bp=boxBlur(A2,hw,hh,Math.max(1,Math.round(fs*.018*S)));
+  const NZ=new Uint8Array(HN);for(let i=0;i<HN;i++)NZ[i]=R()<.5?0:1;
+  const cell=Math.max(8,Math.round(fs*S*.35)),gw=Math.ceil(w/cell)+2,gh=Math.ceil(h/cell)+2;
+  const G=new Float32Array(gw*gh);for(let i=0;i<G.length;i++)G[i]=R();
+  const mott=(x,y)=>{const fx=x/cell,fy=y/cell,ix=fx|0,iy=fy|0,tx=fx-ix,ty=fy-iy,k=iy*gw+ix;
+    return(G[k]*(1-tx)+G[k+1]*tx)*(1-ty)+(G[k+gw]*(1-tx)+G[k+gw+1]*tx)*ty;};
+
+  const ink=o.gold?GOLD:hexRGB(o.inkColor),har=o.har?(o.har==="gold"?GOLD:hexRGB(o.har)):ink;
+  const lightInk=o.gold||lum(ink)>.5;
+  const L=Math.max(3,fs*S*.09*(.6+reed)),nS=Math.max(3,Math.round(L/1.6));
+  const img=new ImageData(w,h),out=img.data;
+  for(let y=0;y<h;y++){
+    const hy=(y>>1)*hw;
+    for(let x=0;x<w;x++){
+      const i=y*w+x,al=full[i*4+3];if(!al)continue;
+      const hi=hy+(x>>1),dx=DX[hi],dy=DY[hi];
+      // line-integral convolution along the stroke (noise sampled on a 2px grid: fibres ~2px wide)
+      let s=0,n=0;
+      for(let k=-nS;k<=nS;k++){const t=k*L/nS,sx=(x+dx*t+.5)|0,sy=(y+dy*t+.5)|0;
+        if(sx<0||sy<0||sx>=w||sy>=h)continue;s+=NZ[(sy>>1)*hw+(sx>>1)];n++;}
+      const z=(s/n-.5)*2*Math.sqrt(n);              // ~N(0,1)
+      const d=dry[hi],de=(.1+.9*d)*reed;
+      const gap=Math.min(1,Math.max(0,(z-(1.9-2.6*de))/1.1));
+      const pool=Math.min(1,Math.max(0,(1-Bp[hi])*1.8))*reed;
+      const m=mott(x,y);
+      const mv=lightInk?.08:.18;
+      let a=al/255*(1-gap*.93)*(1-mv*reed+mv*reed*m)*(1-d*(lightInk?.12:.22)*reed);
+      const rb=base?Math.min(1,base[i*4+3]/al):1;
+      let r=har[0]+(ink[0]-har[0])*rb,g=har[1]+(ink[1]-har[1])*rb,b=har[2]+(ink[2]-har[2])*rb;
+      const isGold=o.gold?rb>.5:(o.har==="gold"&&rb<.5);
+      if(isGold){const q=Math.min(1,m*.7+Math.max(0,z)*.12);r=GOLD[0]+(GOLD2[0]-GOLD[0])*q;g=GOLD[1]+(GOLD2[1]-GOLD[1])*q;b=GOLD[2]+(GOLD2[2]-GOLD[2])*q;}
+      if(lightInk&&!(!o.gold&&rb<.5&&o.har&&lum(har)<.5)){a*=.93+.07*pool;}
+      else{const sh=1-pool*.3-Math.max(0,-z-1)*.1*reed;r*=sh;g*=sh;b*=sh;}
+      const j=i*4;out[j]=r;out[j+1]=g;out[j+2]=b;out[j+3]=Math.min(255,a*255);
     }
-    // 5) the pen running dry: lighter ink and fibre streaks along the stroke
-    g.globalCompositeOperation="destination-out";g.lineCap="round";
-    placed.forEach(p=>{
-      if(p.dry<=.05)return;
-      const x0=p.x-p.ww,top=p.y+p.dy-fs*.95,h=fs*1.35;
-      g.fillStyle=`rgba(0,0,0,${p.dry*.34*reed})`;g.fillRect(x0,top,p.ww,h);
-      const k=Math.round(p.ww*h/(fs*fs)*70*p.dry*reed);
-      for(let i=0;i<k;i++){
-        const x=x0+R()*p.ww,y=top+R()*h,l=fs*(.1+R()*.45),ang=(R()-.5)*.2;
-        g.strokeStyle=`rgba(0,0,0,${(.25+R()*.55)*p.dry})`;g.lineWidth=.5+R()*1.3;
-        g.beginPath();g.moveTo(x,y);g.lineTo(x-Math.cos(ang)*l,y+Math.sin(ang)*l);g.stroke();
-      }
-    });
   }
-  // 6) onto the paper: a faint bleed, then the ink itself with a roughened edge
+  const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").putImageData(img,0,0);
   const filt=document.getElementById("reedDisp");
-  if(filt)filt.setAttribute("scale",String(3*S*reed));
+  if(filt)filt.setAttribute("scale",String(1.4*S*reed));
   ctx.save();ctx.setTransform(1,0,0,1,0,0);
-  if(canFilter&&reed>0){
-    ctx.globalAlpha=.3*reed;ctx.filter=`blur(${1.6*S}px)`;ctx.drawImage(c,0,0);
-    ctx.globalAlpha=1;ctx.filter="url(#reedEdge)";
-  }
-  ctx.globalCompositeOperation=(o.dark||o.gold)?"source-over":"multiply";
+  if(canFilter&&reed>0)ctx.filter="url(#reedEdge)";
+  ctx.globalCompositeOperation=(!o.gold&&lum(ink)<lum(hexRGB(o.paperBg)))?"multiply":"source-over";
   ctx.drawImage(c,0,0);
   ctx.restore();
 }
@@ -419,7 +500,8 @@ const canvas=$("#stage"),ctx=canvas.getContext("2d");
 let zoomed=false;
 function applyZoom(){canvas.style.width=zoomed?Math.round(canvas.width/S*1.6)+"px":"";$("#well").classList.toggle("zoom",zoomed);
   $("#zoomBtn").setAttribute("aria-pressed",String(zoomed));$("#zoomBtn").textContent=zoomed?"عرض اللوحة كاملة":"تكبير لرؤية أثر القصبة";}
-let renderToken=0;
+let renderToken=0,renderTimer=0;
+function schedule(){clearTimeout(renderTimer);renderTimer=setTimeout(render,110);}
 async function render(){
   const tok=++renderToken;
   const [family,weight]=st.font.split("|");
@@ -449,7 +531,7 @@ async function render(){
   }
   const lh=fs*st.lh;
   const textW=Math.max(...composed.map(c=>c.width));
-  const Wf=layout==="line"?Math.min(W,Math.max(900,textW+2*inner+dotsW)):W;
+  const Wf=layout==="line"?Math.round(Math.min(W,Math.max(900,textW+2*inner+dotsW))):W;
   const H=Math.round(inner*2+lh*lines.length+fs*.1);
   canvas.width=Wf*S;canvas.height=H*S;
   ctx.setTransform(S,0,0,S,0,0);
@@ -457,7 +539,7 @@ async function render(){
   frame(ctx,Wf,H,layout,p,m);
   ctx.font=fontStr;ctx.textBaseline="alphabetic";ctx.textAlign="right";ctx.direction="rtl";
   const ink=INKS[st.ink];
-  const inkColor=p.dark&&st.ink==="smoke"?"#EFE6CF":ink;
+  const inkColor=(ink!=="gold"&&p.dark&&lum(hexRGB(ink))<.3)?"#EFE6CF":ink;
   const centerX=st.dots?(Wf-dotsW)/2:Wf/2;
   const placed=[];
   composed.forEach((c,i)=>{
@@ -465,7 +547,7 @@ async function render(){
     let x=centerX+c.width/2;
     c.words.forEach(w=>{const ww=ctx.measureText(w).width;placed.push({w,x,y,ww});x-=ww+c.gap;});
   });
-  drawInk(ctx,placed,{Wf,H,fontStr,fs,inner,inkColor,gold:ink==="gold",dark:!!p.dark,reed:st.reed,R:rng(hashStr(src)+fs)});
+  drawInk(ctx,placed,{Wf,H,fontStr,fs,inner,inkColor,gold:ink==="gold",paperBg:p.bg,har:(st.har==="same"||st.tashkeel==="strip")?null:(st.har==="gold"?"gold":INKS[st.har]),reed:st.reed,R:rng(hashStr(src)+fs)});
   applyZoom();
   if(st.dots){dotScale(ctx,Wf-inner-dotsW*.35,inner+lh*.64,fs,ink==="gold"?"#B98B33":inkColor,p.dark);}
   canvas.setAttribute("aria-label",`${src.replace(/\n/g," ")} — على نمط ${school.name}`);
@@ -484,7 +566,7 @@ function syncControls(){
   $("#txt").value=st.text;
   document.querySelectorAll(".school").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.id===st.school)));
   document.querySelectorAll("#layout button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===st.layout)));
-  $("#font").value=st.font;$("#tashkeel").value=st.tashkeel;$("#ink").value=st.ink;$("#paper").value=st.paper;
+  $("#font").value=st.font;$("#tashkeel").value=st.tashkeel;$("#ink").value=st.ink;$("#paper").value=st.paper;$("#har").value=st.har;
   $("#size").value=st.size;$("#kashida").value=st.kashida;$("#lh").value=st.lh;$("#dots").checked=st.dots;$("#reed").value=st.reed;
   const s=SCHOOLS.find(x=>x.id===st.school);
   $("#nName").textContent=`${s.name} · ${s.dates}`;$("#nDesc").textContent=s.desc;
@@ -492,14 +574,14 @@ function syncControls(){
 }
 function applySchool(id){
   const s=SCHOOLS.find(x=>x.id===id);
-  Object.assign(st,{school:id,font:s.font,lh:s.lh,kashida:s.kashida,ink:s.ink,paper:s.paper,layout:s.layout,dots:s.dots,size:s.size});
+  Object.assign(st,{school:id,font:s.font,lh:s.lh,kashida:s.kashida,ink:s.ink,paper:s.paper,layout:s.layout,dots:s.dots,size:s.size,har:s.har||"same",reed:s.reed??st.reed});
   syncControls();render();
 }
-$("#txt").addEventListener("input",e=>{st.text=e.target.value;try{localStorage.setItem("naskh.text",st.text);}catch(_){}syncControls();render();});
+$("#txt").addEventListener("input",e=>{st.text=e.target.value;try{localStorage.setItem("naskh.text",st.text);}catch(_){}syncControls();schedule();});
 document.querySelectorAll("#layout button").forEach(b=>b.addEventListener("click",()=>{st.layout=b.dataset.v;
   if(st.layout==="page"&&st.size>72)st.size=60;if(st.layout!=="page"&&st.size<70)st.size=84;syncControls();render();}));
-[["font","font"],["tashkeel","tashkeel"],["ink","ink"],["paper","paper"]].forEach(([id,k])=>$("#"+id).addEventListener("change",e=>{st[k]=e.target.value;render();}));
-[["size","size"],["kashida","kashida"],["lh","lh"],["reed","reed"]].forEach(([id,k])=>$("#"+id).addEventListener("input",e=>{st[k]=parseFloat(e.target.value);render();}));
+[["font","font"],["tashkeel","tashkeel"],["ink","ink"],["paper","paper"],["har","har"]].forEach(([id,k])=>$("#"+id).addEventListener("change",e=>{st[k]=e.target.value;render();}));
+[["size","size"],["kashida","kashida"],["lh","lh"],["reed","reed"]].forEach(([id,k])=>$("#"+id).addEventListener("input",e=>{st[k]=parseFloat(e.target.value);schedule();}));
 $("#zoomBtn").addEventListener("click",()=>{zoomed=!zoomed;applyZoom();});
 $("#dots").addEventListener("change",e=>{st.dots=e.target.checked;render();});
 
